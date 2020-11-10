@@ -870,7 +870,7 @@ describe('OCA.Files.FileList tests', function() {
 			expect(fileList.$fileList.find('input.filename').length).toEqual(0);
 			expect(fileList.$fileList.find('form').length).toEqual(0);
 		});
-		it('Restores thumbnail when rename was cancelled', function() {
+		it('Restores thumbnail when rename was cancelled', function(done) {
 			doRename();
 
 			expect(fileList.findFileEl('Tu_after_three.txt').find('.thumbnail').parent().attr('class'))
@@ -878,9 +878,13 @@ describe('OCA.Files.FileList tests', function() {
 
 			deferredRename.reject(409);
 
-			expect(fileList.findFileEl('One.txt').length).toEqual(1);
-			expect(OC.TestUtil.getImageUrl(fileList.findFileEl('One.txt').find('.thumbnail')))
-				.toEqual(OC.imagePath('core', 'filetypes/text.svg'));
+			setTimeout(function() {
+				expect(fileList.findFileEl('One.txt').length).toEqual(1);
+				expect(OC.TestUtil.getImageUrl(fileList.findFileEl('One.txt').find('.thumbnail')))
+					.toEqual(OC.imagePath('core', 'filetypes/text.svg'));
+
+				done();
+			}, 0)
 		});
 	});
 	describe('Moving files', function() {
@@ -2811,7 +2815,7 @@ describe('OCA.Files.FileList tests', function() {
 			getFileInfoStub.restore();
 		});
 
-		it('creates file with given name and adds it to the list', function() {
+		it('creates file with given name and adds it to the list', function(done) {
 			fileList.createFile('test.txt');
 
 			expect(createStub.calledOnce).toEqual(true);
@@ -2835,9 +2839,13 @@ describe('OCA.Files.FileList tests', function() {
 				})
 			);
 
-			var $tr = fileList.findFileEl('test.txt');
-			expect($tr.length).toEqual(1);
-			expect($tr.attr('data-mime')).toEqual('text/plain');
+			setTimeout(function() {
+				var $tr = fileList.findFileEl('test.txt');
+				expect($tr.length).toEqual(1);
+				expect($tr.attr('data-mime')).toEqual('text/plain');
+
+				done();
+			}, 0);
 		});
 		// TODO: error cases
 		// TODO: unique name cases
@@ -2906,18 +2914,28 @@ describe('OCA.Files.FileList tests', function() {
 
 			expect(promise.state()).toEqual('resolved');
 		});
-		it('fetches info when folder is the current one', function() {
+		it('fetches info when folder is the current one', function(done) {
 			fileList.addAndFetchFileInfo('testfile.txt', '/subdir');
-			expect(getFileInfoStub.calledOnce).toEqual(true);
-			expect(getFileInfoStub.getCall(0).args[0]).toEqual('/subdir/testfile.txt');
+
+			_.defer(function() {
+				expect(getFileInfoStub.calledOnce).toEqual(true);
+				expect(getFileInfoStub.getCall(0).args[0]).toEqual('/subdir/testfile.txt');
+
+				done();
+			});
 		});
-		it('adds file data to list when fetching is done', function() {
+		it('adds file data to list when fetching is done', function(done) {
 			fileList.addAndFetchFileInfo('testfile.txt', '/subdir');
 			getFileInfoDeferred.resolve(200, {
 				name: 'testfile.txt',
 				size: 100
 			});
-			expect(fileList.findFileEl('testfile.txt').attr('data-size')).toEqual('100');
+
+			_.defer(function() {
+				expect(fileList.findFileEl('testfile.txt').attr('data-size')).toEqual('100');
+
+				done();
+			})
 		});
 		it('replaces file data to list when fetching is done', function() {
 			fileList.addAndFetchFileInfo('testfile.txt', '/subdir', {replace: true});
@@ -3219,27 +3237,39 @@ describe('OCA.Files.FileList tests', function() {
 			getFolderContentsStub.restore();
 			fileList = undefined;
 		});
-		it('redirects to root folder in case of forbidden access', function () {
+		it('redirects to root folder in case of forbidden access', function (done) {
 			deferredList.reject(403);
 
-			expect(fileList.getCurrentDirectory()).toEqual('/');
-			expect(getFolderContentsStub.calledTwice).toEqual(true);
+			setTimeout(function() {
+				expect(fileList.getCurrentDirectory()).toEqual('/');
+				expect(getFolderContentsStub.calledTwice).toEqual(true);
+
+				done();
+			}, 0);
 		});
-		it('redirects to root folder and shows notification in case of internal server error', function () {
+		it('redirects to root folder and shows notification in case of internal server error', function (done) {
 			expect(notificationStub.notCalled).toEqual(true);
 			deferredList.reject(500);
 
-			expect(fileList.getCurrentDirectory()).toEqual('/');
-			expect(getFolderContentsStub.calledTwice).toEqual(true);
-			expect(notificationStub.calledOnce).toEqual(true);
+			_.defer(function() {
+				expect(fileList.getCurrentDirectory()).toEqual('/');
+				expect(getFolderContentsStub.calledTwice).toEqual(true);
+				expect(notificationStub.calledOnce).toEqual(true);
+
+				done();
+			})
 		});
-		it('redirects to root folder and shows notification in case of storage not available', function () {
+		it('redirects to root folder and shows notification in case of storage not available', function (done) {
 			expect(notificationStub.notCalled).toEqual(true);
 			deferredList.reject(503, 'Storage is temporarily not available');
 
-			expect(fileList.getCurrentDirectory()).toEqual('/');
-			expect(getFolderContentsStub.calledTwice).toEqual(true);
-			expect(notificationStub.calledOnce).toEqual(true);
+			setTimeout(function() {
+				expect(fileList.getCurrentDirectory()).toEqual('/');
+				expect(getFolderContentsStub.calledTwice).toEqual(true);
+				expect(notificationStub.calledOnce).toEqual(true);
+
+				done();
+			}, 0)
 		});
 	});
 	describe('showFileBusyState', function() {

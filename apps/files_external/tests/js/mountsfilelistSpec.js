@@ -94,7 +94,7 @@ describe('OCA.Files_External.FileList tests', function() {
 				}
 			};
 		});
-		it('render storage list', function() {
+		it('render storage list', function(done) {
 			var request;
 			var $rows;
 			var $tr;
@@ -112,41 +112,44 @@ describe('OCA.Files_External.FileList tests', function() {
 				JSON.stringify(ocsResponse)
 			);
 
-			$rows = fileList.$el.find('tbody tr');
-			expect($rows.length).toEqual(2);
+			_.defer(function() {
+				$rows = fileList.$el.find('tbody tr');
+				expect($rows.length).toEqual(2);
 
-			$tr = $rows.eq(0);
-			expect($tr.attr('data-id')).not.toBeDefined();
-			expect($tr.attr('data-type')).toEqual('dir');
-			expect($tr.attr('data-file')).toEqual('sftp mount');
-			expect($tr.attr('data-path')).toEqual('/another mount points');
-			expect($tr.attr('data-size')).not.toBeDefined();
-			expect($tr.attr('data-permissions')).toEqual('1'); // read only 
-			expect($tr.find('a.name').attr('href')).toEqual(
-				OC.getRootPath() +
-				'/index.php/apps/files' +
-				'?dir=/another%20mount%20points/sftp%20mount'
-			);
-			expect($tr.find('.nametext').text().trim()).toEqual('sftp mount');
-			expect($tr.find('.column-scope > span').text().trim()).toEqual('System');
-			expect($tr.find('.column-backend').text().trim()).toEqual('SFTP');
+				$tr = $rows.eq(0);
+				expect($tr.attr('data-id')).not.toBeDefined();
+				expect($tr.attr('data-type')).toEqual('dir');
+				expect($tr.attr('data-file')).toEqual('sftp mount');
+				expect($tr.attr('data-path')).toEqual('/another mount points');
+				expect($tr.attr('data-size')).not.toBeDefined();
+				expect($tr.attr('data-permissions')).toEqual('1'); // read only
+				expect($tr.find('a.name').attr('href')).toEqual(
+					OC.getRootPath() +
+					'/index.php/apps/files' +
+					'?dir=/another%20mount%20points/sftp%20mount'
+				);
+				expect($tr.find('.nametext').text().trim()).toEqual('sftp mount');
+				expect($tr.find('.column-scope > span').text().trim()).toEqual('System');
+				expect($tr.find('.column-backend').text().trim()).toEqual('SFTP');
 
-			$tr = $rows.eq(1);
-			expect($tr.attr('data-id')).not.toBeDefined();
-			expect($tr.attr('data-type')).toEqual('dir');
-			expect($tr.attr('data-file')).toEqual('smb mount');
-			expect($tr.attr('data-path')).toEqual('/mount points');
-			expect($tr.attr('data-size')).not.toBeDefined();
-			expect($tr.attr('data-permissions')).toEqual('9'); // read and delete
-			expect($tr.find('a.name').attr('href')).toEqual(
-				OC.getRootPath() +
-				'/index.php/apps/files' +
-				'?dir=/mount%20points/smb%20mount'
-			);
-			expect($tr.find('.nametext').text().trim()).toEqual('smb mount');
-			expect($tr.find('.column-scope > span').text().trim()).toEqual('Personal');
-			expect($tr.find('.column-backend').text().trim()).toEqual('SMB');
+				$tr = $rows.eq(1);
+				expect($tr.attr('data-id')).not.toBeDefined();
+				expect($tr.attr('data-type')).toEqual('dir');
+				expect($tr.attr('data-file')).toEqual('smb mount');
+				expect($tr.attr('data-path')).toEqual('/mount points');
+				expect($tr.attr('data-size')).not.toBeDefined();
+				expect($tr.attr('data-permissions')).toEqual('9'); // read and delete
+				expect($tr.find('a.name').attr('href')).toEqual(
+					OC.getRootPath() +
+					'/index.php/apps/files' +
+					'?dir=/mount%20points/smb%20mount'
+				);
+				expect($tr.find('.nametext').text().trim()).toEqual('smb mount');
+				expect($tr.find('.column-scope > span').text().trim()).toEqual('Personal');
+				expect($tr.find('.column-backend').text().trim()).toEqual('SMB');
 
+				done();
+			})
 		});
 	});
 });
