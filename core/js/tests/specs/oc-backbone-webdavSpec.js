@@ -71,7 +71,7 @@ describe('Backbone Webdav extension', function() {
 			});
 		});
 
-		it('makes a POST request to create model into collection', function() {
+		it('makes a POST request to create model into collection', function(done) {
 			var collection = new TestCollection();
 			var model = collection.create({
 				firstName: 'Hello',
