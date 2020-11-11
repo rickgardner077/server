@@ -112,7 +112,7 @@ describe('OCA.Files_External.FileList tests', function() {
 				JSON.stringify(ocsResponse)
 			);
 
-			_.defer(function() {
+			Promise.resolve().then(function() {
 				$rows = fileList.$el.find('tbody tr');
 				expect($rows.length).toEqual(2);
 

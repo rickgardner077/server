@@ -878,7 +878,7 @@ describe('OCA.Files.FileList tests', function() {
 
 			deferredRename.reject(409);
 
-			setTimeout(function() {
+			Promise.resolve().then(function() {
 				expect(fileList.findFileEl('One.txt').length).toEqual(1);
 				expect(OC.TestUtil.getImageUrl(fileList.findFileEl('One.txt').find('.thumbnail')))
 					.toEqual(OC.imagePath('core', 'filetypes/text.svg'));
@@ -1681,13 +1681,15 @@ describe('OCA.Files.FileList tests', function() {
 		afterEach(function() {
 			getFolderContentsStub.restore();
 		});
-		it('fetches file list from server and renders it when reload() is called', function() {
+		it('fetches file list from server and renders it when reload() is called', function(done) {
 			fileList.reload();
 			expect(getFolderContentsStub.calledOnce).toEqual(true);
 			expect(getFolderContentsStub.calledWith('/subdir')).toEqual(true);
 			deferredList.resolve(200, [testRoot].concat(testFiles));
-			expect($('#fileList tr').length).toEqual(4);
-			expect(fileList.findFileEl('One.txt').length).toEqual(1);
+			Promise.resolve().then(function() {
+				expect($('#fileList tr').length).toEqual(4);
+				expect(fileList.findFileEl('One.txt').length).toEqual(1);
+			}).then(done)
 		});
 		it('switches dir and fetches file list when calling changeDirectory()', function() {
 			fileList.changeDirectory('/anothersubdir');
@@ -1733,54 +1735,68 @@ describe('OCA.Files.FileList tests', function() {
 			deferredList.reject(404);
 			expect(fileList.getCurrentDirectory()).toEqual('/');
 		});
-		it('switches to root dir when current directory returns 400', function() {
+		it('switches to root dir when current directory returns 400', function(done) {
 			fileList.changeDirectory('/unexist');
 			deferredList.reject(400);
-			expect(fileList.getCurrentDirectory()).toEqual('/');
+			Promise.resolve().then(function() {
+				expect(fileList.getCurrentDirectory()).toEqual('/');
+			}).then(done);
 		});
-		it('switches to root dir when current directory returns 405', function() {
+		it('switches to root dir when current directory returns 405', function(done) {
 			fileList.changeDirectory('/unexist');
 			deferredList.reject(405);
-			expect(fileList.getCurrentDirectory()).toEqual('/');
+			Promise.resolve().then(function() {
+				expect(fileList.getCurrentDirectory()).toEqual('/');
+			}).then(done);
 		});
-		it('switches to root dir when current directory is forbidden', function() {
+		it('switches to root dir when current directory is forbidden', function(done) {
 			fileList.changeDirectory('/unexist');
 			deferredList.reject(403);
-			expect(fileList.getCurrentDirectory()).toEqual('/');
+			Promise.resolve().then(function() {
+				expect(fileList.getCurrentDirectory()).toEqual('/');
+			}).then(done);
 		});
-		it('switches to root dir when current directory is unavailable', function() {
+		it('switches to root dir when current directory is unavailable', function(done) {
 			fileList.changeDirectory('/unexist');
 			deferredList.reject(500);
-			expect(fileList.getCurrentDirectory()).toEqual('/');
+			Promise.resolve().then(function() {
+				expect(fileList.getCurrentDirectory()).toEqual('/');
+			}).then(done);
 		});
-		it('shows mask before loading file list then hides it at the end', function() {
+		it('shows mask before loading file list then hides it at the end', function(done) {
 			var showMaskStub = sinon.stub(fileList, 'showMask');
 			var hideMaskStub = sinon.stub(fileList, 'hideMask');
 			fileList.changeDirectory('/anothersubdir');
 			expect(showMaskStub.calledOnce).toEqual(true);
 			expect(hideMaskStub.calledOnce).toEqual(false);
 			deferredList.resolve(200, [testRoot].concat(testFiles));
-			expect(showMaskStub.calledOnce).toEqual(true);
-			expect(hideMaskStub.calledOnce).toEqual(true);
-			showMaskStub.restore();
-			hideMaskStub.restore();
+				Promise.resolve().then(function() {
+				expect(showMaskStub.calledOnce).toEqual(true);
+				expect(hideMaskStub.calledOnce).toEqual(true);
+				showMaskStub.restore();
+				hideMaskStub.restore();
+			}).then(done);
 		});
-		it('triggers "changeDirectory" event when changing directory', function() {
+		it('triggers "changeDirectory" event when changing directory', function(done) {
 			var handler = sinon.stub();
 			$('#app-content-files').on('changeDirectory', handler);
 			fileList.changeDirectory('/somedir');
 			deferredList.resolve(200, [testRoot].concat(testFiles));
-			expect(handler.calledOnce).toEqual(true);
-			expect(handler.getCall(0).args[0].dir).toEqual('/somedir');
+			Promise.resolve().then(function() {
+				expect(handler.calledOnce).toEqual(true);
+				expect(handler.getCall(0).args[0].dir).toEqual('/somedir');
+			}).then(done);
 		});
-		it('triggers "afterChangeDirectory" event with fileid after changing directory', function() {
+		it('triggers "afterChangeDirectory" event with fileid after changing directory', function(done) {
 			var handler = sinon.stub();
 			$('#app-content-files').on('afterChangeDirectory', handler);
 			fileList.changeDirectory('/somedir');
 			deferredList.resolve(200, [testRoot].concat(testFiles));
-			expect(handler.calledOnce).toEqual(true);
-			expect(handler.getCall(0).args[0].dir).toEqual('/somedir');
-			expect(handler.getCall(0).args[0].fileId).toEqual(99);
+			Promise.resolve().then(function() {
+				expect(handler.calledOnce).toEqual(true);
+				expect(handler.getCall(0).args[0].dir).toEqual('/somedir');
+				expect(handler.getCall(0).args[0].fileId).toEqual(99);
+			}).then(done);
 		});
 		it('changes the directory when receiving "urlChanged" event', function() {
 			$('#app-content-files').trigger(new $.Event('urlChanged', {view: 'files', dir: '/somedir'}));
@@ -2839,7 +2855,7 @@ describe('OCA.Files.FileList tests', function() {
 				})
 			);
 
-			setTimeout(function() {
+			Promise.resolve().then(function() {
 				var $tr = fileList.findFileEl('test.txt');
 				expect($tr.length).toEqual(1);
 				expect($tr.attr('data-mime')).toEqual('text/plain');
@@ -2917,7 +2933,7 @@ describe('OCA.Files.FileList tests', function() {
 		it('fetches info when folder is the current one', function(done) {
 			fileList.addAndFetchFileInfo('testfile.txt', '/subdir');
 
-			_.defer(function() {
+			Promise.resolve().then(function() {
 				expect(getFileInfoStub.calledOnce).toEqual(true);
 				expect(getFileInfoStub.getCall(0).args[0]).toEqual('/subdir/testfile.txt');
 
@@ -2931,7 +2947,7 @@ describe('OCA.Files.FileList tests', function() {
 				size: 100
 			});
 
-			_.defer(function() {
+			Promise.resolve().then(function() {
 				expect(fileList.findFileEl('testfile.txt').attr('data-size')).toEqual('100');
 
 				done();
@@ -3185,7 +3201,7 @@ describe('OCA.Files.FileList tests', function() {
 				expect(fetchInfoStub.getCall(0).args[0]).toEqual('upload.txt');
 				expect(fetchInfoStub.getCall(0).args[1]).toEqual('/subdir');
 			});
-			it('highlights all uploaded files after all fetches are done', function() {
+			it('highlights all uploaded files after all fetches are done', function(done) {
 				var highlightStub = sinon.stub(fileList, 'highlightFiles');
 				var def1 = addFile(createUpload('upload.txt', '/subdir'));
 				var def2 = addFile(createUpload('upload2.txt', '/subdir'));
@@ -3197,10 +3213,14 @@ describe('OCA.Files.FileList tests', function() {
 				expect(highlightStub.notCalled).toEqual(true);
 				def2.resolve();
 				def3.resolve();
-				expect(highlightStub.calledOnce).toEqual(true);
-				expect(highlightStub.getCall(0).args[0]).toEqual(['upload.txt', 'upload2.txt']);
+				Promise.resolve().then(function() {
+					expect(highlightStub.calledOnce).toEqual(true);
+					expect(highlightStub.getCall(0).args[0]).toEqual(['upload.txt', 'upload2.txt']);
 
-				highlightStub.restore();
+					highlightStub.restore();
+
+					done();
+				});
 			});
 			it('queries storage stats after all fetches are done', function() {
 				var statStub = sinon.stub(fileList, 'updateStorageStatistics');
@@ -3240,7 +3260,7 @@ describe('OCA.Files.FileList tests', function() {
 		it('redirects to root folder in case of forbidden access', function (done) {
 			deferredList.reject(403);
 
-			setTimeout(function() {
+			Promise.resolve().then(function() {
 				expect(fileList.getCurrentDirectory()).toEqual('/');
 				expect(getFolderContentsStub.calledTwice).toEqual(true);
 
@@ -3251,7 +3271,7 @@ describe('OCA.Files.FileList tests', function() {
 			expect(notificationStub.notCalled).toEqual(true);
 			deferredList.reject(500);
 
-			_.defer(function() {
+			Promise.resolve().then(function() {
 				expect(fileList.getCurrentDirectory()).toEqual('/');
 				expect(getFolderContentsStub.calledTwice).toEqual(true);
 				expect(notificationStub.calledOnce).toEqual(true);
@@ -3263,7 +3283,7 @@ describe('OCA.Files.FileList tests', function() {
 			expect(notificationStub.notCalled).toEqual(true);
 			deferredList.reject(503, 'Storage is temporarily not available');
 
-			setTimeout(function() {
+			Promise.resolve().then(function() {
 				expect(fileList.getCurrentDirectory()).toEqual('/');
 				expect(getFolderContentsStub.calledTwice).toEqual(true);
 				expect(notificationStub.calledOnce).toEqual(true);

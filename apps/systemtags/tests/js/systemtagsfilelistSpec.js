@@ -219,7 +219,7 @@ describe('OCA.SystemTags.FileList tests', function() {
 
 			requestDeferred.resolve(207, testFiles);
 
-			_.defer(function() {
+			Promise.resolve().then(function() {
 				expect(fileList.$el.find('#emptycontent').hasClass('hidden')).toEqual(true);
 				expect(fileList.$el.find('tbody>tr').length).toEqual(4);
 

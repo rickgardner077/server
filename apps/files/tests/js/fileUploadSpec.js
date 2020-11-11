@@ -192,7 +192,7 @@ describe('OC.Upload tests', function() {
 				if(counter != 3) {
 					return $.Deferred().resolve().promise();
 				}
-				setTimeout(function() {
+				Promise.resolve().then(function() {
 					expect(conflictDialogStub.callCount).toEqual(3);
 					expect(conflictDialogStub.getCall(1).args[0].getFileName())
 						.toEqual('conflict.txt');
@@ -210,7 +210,7 @@ describe('OC.Upload tests', function() {
 					expect(result[1].submit.calledOnce).toEqual(false);
 					expect(result[2].submit.calledOnce).toEqual(true);
 					done();
-				}, 0);
+				});
 			});
 			var result = addFiles(uploader, [
 				{name: 'conflict.txt'},
